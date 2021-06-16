@@ -1,7 +1,7 @@
-import {Router} from 'express'
+import { Router } from 'express'
 import multer from 'multer'
 
-import {mergeVideosFiles} from './controller'
+import { mergeVideosFiles } from './controller'
 
 const router = new Router()
 
@@ -13,11 +13,10 @@ const storage = multer.diskStorage({
     cb(null, `${file?.fieldname}-${Date.now()}-${file?.originalname}`)
   }
 })
-const upload = multer({storage})
-
+const upload = multer({ storage })
 
 /**
- * @api {post} /merge-videos Create merge videos
+ * @api {post} /api/v1/merge-videos Create merge videos
  * @apiName CreateMergeVideos
  * @apiGroup MergeVideos
  * @apiParam videos mp4 video files.
