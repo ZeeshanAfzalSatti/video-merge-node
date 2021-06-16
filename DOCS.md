@@ -20,6 +20,6 @@
 
 | Name    | Type      | Description                          |
 |---------|-----------|--------------------------------------|
-| videos			| 			|  <p>mp4 videos files.</p>							|
+| videos			| 			|  <p>mp4 video files.</p>							|
 
 

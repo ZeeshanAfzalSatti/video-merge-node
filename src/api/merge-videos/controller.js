@@ -1,4 +1,5 @@
 import concatFFMPEG from 'ffmpeg-concat'
+import { uuid } from 'uuidv4'
 
 export const mergeVideosFiles = async ({ files = [] }, res, next) => {
   try {
@@ -6,19 +7,28 @@ export const mergeVideosFiles = async ({ files = [] }, res, next) => {
       throw new Error('Please upload more than 1 mp4 videos to merge')
     }
 
-    const concatFiles = await concatFFMPEG({
-      output: `${__dirname}test.mp4`,
-      videos: files?.map(({ path }) => path),
-      transition: {
-        name: 'directionalWipe',
-        duration: 500
+    const filePaths = files?.map(({ path }) => {
+      if (!path?.includes('.mp4')) {
+        throw new Error('Please upload files in .mp4 format')
       }
-
+      return path
     })
 
-    console.log(concatFiles)
-    return res.status(201).json(concatFiles)
+    const mergeFileName = `${uuid()}.mp4`
+
+    await concatFFMPEG({
+      output: `${__dirname}/../../../uploads/${mergeFileName}`,
+      videos: filePaths,
+      transition: {
+        name: 'directionalWipe',
+        duration: 10
+      }
+    })
+
+    return res.status(201).json({
+      filePaths: `${process.env.SERVER_URL}/${mergeFileName}`
+    })
   } catch (err) {
-    next(err)
+    return res.status(400).json({ message: err?.message })
   }
 }
