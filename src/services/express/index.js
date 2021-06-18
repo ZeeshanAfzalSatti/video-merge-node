@@ -17,8 +17,14 @@ export default (apiRoot, routes) => {
     app.use(morgan('dev'))
   }
 
-  app.use(bodyParser.urlencoded({ extended: false }))
-  app.use(bodyParser.json())
+  const rawBodyBuffer = (req, res, buf, encoding) => {
+    if (buf && buf.length) {
+      req.rawBody = buf.toString(encoding || 'utf8')
+    }
+  }
+  app.use(bodyParser.urlencoded({ extended: true, limit: '150mb', verify: rawBodyBuffer }))
+  app.use(bodyParser.json({ limit: '150mb', verify: rawBodyBuffer }))
+
   app.use(apiRoot, routes)
   app.use(queryErrorHandler())
   app.use(bodyErrorHandler())
