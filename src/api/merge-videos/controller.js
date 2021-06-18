@@ -1,24 +1,31 @@
 import concatFFMPEG from 'ffmpeg-concat'
+import * as rra from 'recursive-readdir-async'
 import { uuid } from 'uuidv4'
 
-export const mergeVideosFiles = async ({ files = [] }, res, next) => {
+export const mergeVideosFiles = async ({
+  files = [],
+  body: { folder } = ''
+}, res) => {
   try {
-    if (files?.length <= 1) {
-      throw new Error('Please upload more than 1 mp4 videos to merge')
+    if (!folder) {
+      throw new Error('Please send the folder name')
     }
 
-    const filePaths = files?.map(({ path }) => {
-      if (!path?.includes('.mp4')) {
-        throw new Error('Please upload files in .mp4 format')
-      }
-      return path
-    })
+    const list = await rra.list(`videos/${folder ?? ''}`, { ignoreFolders: true })
+
+    if (list?.length <= 1) {
+      throw new Error('Please send folder name that contains more than 1 mp4 videos')
+    }
+
+    if (list?.error) {
+      throw new Error(list?.error)
+    }
 
     const mergeFileName = `${uuid()}.mp4`
 
     await concatFFMPEG({
       output: `${__dirname}/../../../uploads/${mergeFileName}`,
-      videos: filePaths,
+      videos: list?.map(({ fullname }) => fullname),
       transition: {
         name: 'directionalWipe',
         duration: 10
